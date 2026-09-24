@@ -55,3 +55,22 @@ LIMIT 20;
 SELECT ROUND(AVG(DATE_DIFF('day', order_purchase_timestamp, order_delivered_customer_date)), 2) AS avg_delivery_days
 FROM orders
 WHERE order_delivered_customer_date IS NOT NULL;
+
+
+-- Gibt an wie oft verspätete Pakete ankamen
+SELECT COUNT(*) AS delivered_orders, COUNT(*) FILTER (WHERE order_delivered_customer_date > order_estimated_delivery_date) AS late_orders,
+ROUND(100.0 * COUNT(*) FILTER (WHERE order_delivered_customer_date > order_estimated_delivery_date) / COUNT(*), 2) AS late_delivery_rate_pct
+FROM orders
+WHERE order_delivered_customer_date IS NOT NULL AND order_estimated_delivery_date IS NOT NULL;
+
+-- Gibt den Anteil der Kunden aus mit mehr als einer Bestellung aus
+WITH customer_orders AS 
+    (SELECT c.customer_unique_id, COUNT(DISTINCT o.order_id) AS order_count
+    FROM customers c 
+    JOIN orders o ON c.customer_id = o.customer_id
+    GROUP BY c.customer_unique_id
+)
+SELECT COUNT(*) AS total_customers, 
+       COUNT(*) FILTER (WHERE order_count > 1) AS repeat_customers,
+       ROUND(100.0 * COUNT(*) FILTER (WHERE order_count > 1) / COUNT(*), 2) AS repeat_customer_rate_pct
+       FROM customer_orders;
