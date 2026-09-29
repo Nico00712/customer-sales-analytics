@@ -1,11 +1,19 @@
 from pathlib import Path
 import duckdb
 
+"""
+Runs automated data-quality checks against the Olist DuckDB database.
+
+The checks validate referential integrity and basic business rukes, such as negative prices, invalid review scores and implausible dates.
+"""
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 DB_PATH = BASE_DIR / "data" / "olist.duckdb"
 
 con = duckdb.connect(str(DB_PATH))
 
+
+#Referential integrity checks verify that records in dependent tables have matching records in their related parent tables.
 checks = {
     "Order items -> Orders": """
     SELECT COUNT(*)
@@ -49,6 +57,7 @@ checks = {
     WHERE s.seller_id IS NULL
     """,
 
+    # Business-rule checks identify values that are technically valid but implausible from an analytical perspective
     "Negative product prices": """
     SELECT COUNT(*)
     FROM order_items

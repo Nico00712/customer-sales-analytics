@@ -2,6 +2,13 @@ from pathlib import Path
 import duckdb
 import matplotlib.pyplot as plt
 
+"""
+Generates a cohort-retention heatmap based on each customer's first purchase month.
+
+The resulting chart is saved to output/charts/cohort_retention.png.
+"""
+
+# Resolve paths relative to the project root so the script works regardless of the current working directory.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 DB_PATH = BASE_DIR / "data" / "olist.duckdb"
@@ -24,7 +31,7 @@ df["cohort_month"] = (
     .dt.strftime("%Y-%m")
 )
 
-# Daten für Heatmap pivotieren 
+# Pivot the cohort data so rows represent customer cohorts and colums represent months since the first purchase.
 retention_matrix = df.pivot(
     index="cohort_month",
     columns="month_number",
@@ -33,6 +40,7 @@ retention_matrix = df.pivot(
 
 print(retention_matrix)
 
+# Exclude incomplete cohorts to keep retention periods comparable.
 retention_plot = retention_matrix.loc[
     "2017-01":"2018-08",
     1:12
@@ -40,6 +48,7 @@ retention_plot = retention_matrix.loc[
 
 fig, ax = plt.subplots(figsize=(12,8))
 
+# Most retention values are below 1%, so the color scale is capped at 1% to make differences between cohorts easier to see.
 image = ax.imshow(
     retention_plot,
     aspect="auto",

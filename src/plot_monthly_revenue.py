@@ -2,6 +2,13 @@ from pathlib import Path
 import duckdb
 import matplotlib.pyplot as plt
 
+"""
+Generates a monthly revenue chart from the Olist DuckDB database.
+
+The resulting chart is saved to output/charts/monthly_revenue.png.
+"""
+
+# Resolve paths relative to the project root so the script works regardless of the current working directory.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 DB_PATH = BASE_DIR / "data" / "olist.duckdb"
@@ -18,9 +25,10 @@ df = con.execute(query).fetchdf()
 
 con.close()
 
+#Exclude the final partial month so incomplete transaction data is not interpreted as a real revenue decline.
 df["month"] = df["month"].dt.strftime("%Y-%m")
 
-df = df[df["month"] < "2018-09"] # Datensatz hat für September 2018 noch sehr wenige Bestellungen
+df = df[df["month"] < "2018-09"]
 
 fig, ax = plt.subplots(figsize=(12, 6))
 

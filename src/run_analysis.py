@@ -2,6 +2,13 @@ from pathlib import Path
 import sys
 import duckdb
 
+"""
+Executes eitehr the basic or advanced SQL analysis.
+
+Usage: README.md
+"""
+
+# Resolve paths relative to the project root so the script works regardless of the current working directory.
 BASE_DIR = Path(__file__).resolve().parent.parent
 DB_PATH = BASE_DIR / "data" / "olist.duckdb"
 
@@ -17,12 +24,14 @@ if analyis_type not in sql_files:
     print("Use: basic or advanced")
     sys.exit(1)
 
+# Select the SQL file based on the command-line argument.
 SQL_PATH = sql_files[analyis_type]
 
 con = duckdb.connect(str(DB_PATH))
 
 sql_text = SQL_PATH.read_text(encoding="utf-8")
 
+# Split the SQL file into individual statements using semicolons.
 queries = [
     query.strip()
     for query in sql_text.split(";")

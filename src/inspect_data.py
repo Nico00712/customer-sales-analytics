@@ -5,6 +5,8 @@ DATA_DIR = Path("data/raw")
 
 csv_files = list(DATA_DIR.glob("*.csv"))
 
+# Inspect each raw CSV to understand its schema and identity
+# Potential data-quality issues before loading it into DuckDB
 for file in csv_files:
     print(f"\n=== {file.name} ===")
 

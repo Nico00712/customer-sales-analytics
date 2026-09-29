@@ -1,6 +1,12 @@
 from pathlib import Path
 import duckdb
 
+"""
+Loads the raw Olist CSV files into a DuckDB database.
+
+The script creates a table per source file and prints the number of imported rows for each table.
+"""
+
 DATA_DIR = Path("data/raw")
 DB_PATH = Path("data/olist.duckdb")
 
@@ -18,9 +24,10 @@ tables = {
     "category_translation": "product_category_name_translation.csv",
 }
 
-for table_name, filename in tables.items(): # Loops through the table names and file names and creates the full file path for each file.
+for table_name, filename in tables.items(): 
     path = DATA_DIR / filename
 
+    # Rebuild each table from the raw CSV so the database can be recreated reproducibly from the orginal source data.
     con.execute(
         f"""
         CREATE OR REPLACE TABLE {table_name} AS
